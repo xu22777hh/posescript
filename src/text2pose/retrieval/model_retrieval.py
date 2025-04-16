@@ -23,13 +23,16 @@ class PoseText(nn.Module):
         super(PoseText, self).__init__()
 
         self.latentD = latentD
-
+        
+        ########  2023   dzj
         # Define pose encoder
-        self.pose_encoder = PoseEncoder(num_neurons=num_neurons,
-                                        num_neurons_mini=num_neurons_mini,
-                                        latentD=latentD,
-                                        num_body_joints=num_body_joints,
-                                        role="retrieval")
+        # self.pose_encoder = PoseEncoder(num_neurons=num_neurons,
+        #                                 num_neurons_mini=num_neurons_mini,
+        #                                 latentD=latentD,
+        #                                 num_body_joints=num_body_joints,
+        #                                 role="retrieval")
+
+        self.pose_encoder = PoseEncoder()
 
         # Define text encoder
         self.text_encoder_name = text_encoder_name
@@ -47,6 +50,8 @@ class PoseText(nn.Module):
 
     def forward(self, pose, captions, caption_lengths):
         pose_embs = self.pose_encoder(pose)
+        # import pdb
+        # pdb.set_trace()
         text_embs = self.text_encoder(captions, caption_lengths)
         return pose_embs, text_embs
 

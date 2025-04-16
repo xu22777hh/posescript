@@ -18,7 +18,7 @@ from text2pose.option import get_args_parser
 from text2pose.trainer import GenericTrainer
 from text2pose.retrieval.model_retrieval import PoseText
 from text2pose.retrieval.evaluate_retrieval import compute_eval_metrics
-from text2pose.loss import BBC, symBBC
+from text2pose.loss import BBC, symBBC, SigLipLoss
 from text2pose.data import PoseScript, PoseFix
 from text2pose.encoders.tokenizers import get_tokenizer_name
 from text2pose.data_augmentations import DataAugmentation
@@ -26,7 +26,7 @@ from text2pose.data_augmentations import DataAugmentation
 import text2pose.config as config
 import text2pose.utils_logging as logging
 
-
+import pdb
 ################################################################################
 
 
@@ -38,6 +38,7 @@ class PoseTextTrainer(GenericTrainer):
 	
 	def load_dataset(self, split, caption_index, tokenizer_name=None):
 		
+		# pdb.set_trace()
 		if tokenizer_name is None: tokenizer_name = get_tokenizer_name(self.args.text_encoder_name)
 		data_size = self.args.data_size if split=="train" else None
 
@@ -126,6 +127,7 @@ class PoseTextTrainer(GenericTrainer):
 			caption_lengths = item['caption_lengths'].to(self.device)
 			caption_tokens = caption_tokens[:,:caption_lengths.max()] # truncate within the batch, based on the longest text 
 
+			# pdb.set_trace()
 			# online random augmentations
 			poses, caption_tokens, caption_lengths = self.data_augmentation_module(poses, caption_tokens, caption_lengths)
 
@@ -139,6 +141,9 @@ class PoseTextTrainer(GenericTrainer):
 				loss = BBC(score_t2p)
 			elif self.args.retrieval_loss == "symBBC":
 				loss = symBBC(score_t2p)
+			elif self.args.retrieval_loss == "SigClip":
+				loss_fn = SigLipLoss()
+				loss = loss_fn(poses_features, texts_features)
 			else:
 				raise NotImplementedError
 

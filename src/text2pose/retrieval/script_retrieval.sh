@@ -1,17 +1,18 @@
-#!/bin/bash
+#!/bin/bash -l
+#SBATCH --job-name=examplejob       # Job name
+#SBATCH --output=/scratch/project_465000903/LLava_video/posescript/log/examplejob.o%j     # Name of stdout output file
+#SBATCH --error=/scratch/project_465000903/LLava_video/posescript/log/examplejob.e%j     # Name of stderr error file
+#SBATCH --partition=standard-g      # Partition name (ensure this is correct!)
+#SBATCH --nodes=1                   # Total number of nodes
+#SBATCH --cpus-per-task=16
+#SBATCH --ntasks-per-node=1         # Number of tasks per node
+#SBATCH --gpus-per-node=1           # Allocate one GPU per MPI rank
+#SBATCH --time=48:00:00              # Run time (d-hh:mm:ss)
+#SBATCH --account=project_465001867 # Project for billing
+#SBATCH --mem=128G                   # Request 64GB of memory
 
-##############################################################
-## text2pose                                                ##
-## Copyright (c) 2022, 2023                                 ##
-## Institut de Robotica i Informatica Industrial, CSIC-UPC  ##
-## and Naver Corporation                                    ##
-## Licensed under the CC BY-NC-SA 4.0 license.              ##
-## See project root for license details.                    ##
-##############################################################
+source /scratch/project_465000903/posescript/bin/activate
 
-
-##############################################################
-# SCRIPT ARGUMENTS
 
 action=$1 # (train|eval|demo)
 checkpoint_type="best" # (last|best)
@@ -24,7 +25,7 @@ architecture_args=(
 )
 
 loss_args=(
-    --retrieval_loss 'symBBC'
+    --retrieval_loss 'SigClip'
 )
 
 bonus_args=(
@@ -46,14 +47,14 @@ if [[ "$action" == *"train"* ]]; then
     
     # PRETRAIN 
     if [[ "$phase" == *"pretrain"* ]]; then
-
-        python retrieval/train_retrieval.py --dataset "posescript-A2" \
+        srun python train_retrieval.py --dataset "posescript-A2" \
         "${architecture_args[@]}" \
         "${loss_args[@]}" \
         "${bonus_args[@]}" \
-        --lr_scheduler "stepLR" --lr 0.0002 --lr_step 400 --lr_gamma 0.5 \
-        --log_step 20 --val_every 20 \
-        --batch_size 512 --epochs 1000 --seed $seed
+        --lr_scheduler "stepLR" --lr 0.0001 --lr_step 500 --lr_gamma 0.5 \
+        --log_step 20 --val_every 10 \
+        --batch_size 1024 --epochs 200 --seed $seed \
+        >> /scratch/project_465000903/LLava_video/posescript/log/motionx_MyEncoder_whole_lr_0.0001_SigClip_log.log 2>&1
 
     # FINETUNE
     elif [[ "$phase" == *"finetune"* ]]; then
