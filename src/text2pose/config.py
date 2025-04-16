@@ -20,30 +20,43 @@ MAIN_DIR = os.path.dirname(os.path.dirname(os.path.dirname(MAIN_DIR)))
 # Output dir for experiments
 ################################################################################
 
-GENERAL_EXP_OUTPUT_DIR = MAIN_DIR + '/experiments'
+GENERAL_EXP_OUTPUT_DIR = MAIN_DIR + '/experiments_MXjoints_MyEncoder_whole_lr_0.0001_SigClip_8k' 
 
 
 ################################################################################
 # Data
 ################################################################################
 
+# 20250325 dzj
+AMASS_FILE_LOCATION = '/scratch/project_465000903/LLava_video/ALL_except_motion_model/PoseClip/AMASS_smplh'
+POSESCRIPT_LOCATION = '/scratch/project_465000903/LLava_video/ALL_except_motion_model/motionx/motion_data'
+# 20250325 dzj
+
+
 POSEFIX_LOCATION = MAIN_DIR + '/data/PoseFix/posefix_release'
-POSESCRIPT_LOCATION = MAIN_DIR + '/data/PoseScript/posescript_release'
+# POSESCRIPT_LOCATION = MAIN_DIR + '/data/PoseScript/posescript_release'
 POSEMIX_LOCATION = MAIN_DIR + '/data/posemix'
 
 version_suffix = "_100k" # to be used for pipeline-related data (coords, rotation change, babel labels)
-file_pose_id_2_dataset_sequence_and_frame_index = f"{POSESCRIPT_LOCATION}/ids_2_dataset_sequence_and_frame_index_100k.json" 
+# file_pose_id_2_dataset_sequence_and_frame_index = f"{POSESCRIPT_LOCATION}/ids_2_dataset_sequence_and_frame_index_100k.json" 
 file_pair_id_2_pose_ids = f"{POSEFIX_LOCATION}/pair_id_2_pose_ids.json"
-file_posescript_split = f"{POSESCRIPT_LOCATION}/%s_ids_100k.json" # %s --> (train|val|test)
+# file_posescript_split = f"{POSESCRIPT_LOCATION}/%s_ids_100k.json" # %s --> (train|val|test)
 file_posefix_split = f"{POSEFIX_LOCATION}/%s_%s_sequence_pair_ids.json" # %s %s --> (train|val|test), (in|out)
 
+# 20250325 dzj
+file_pose_id_2_dataset_sequence_and_frame_index = f"{POSESCRIPT_LOCATION}/new_motion_annotation.json" 
+file_posescript_split = f"{POSESCRIPT_LOCATION}/%s_ids_100k.json" # %s --> (train|val|test)
+# 20250325 dzj
 
 ### pose config ----------------------------------------------------------------
 
 POSE_FORMAT = 'smplh'
 SMPLH_BODY_MODEL_PATH = MAIN_DIR + '/data/smplh_amass_body_models'
 NEUTRAL_BM = f'{SMPLH_BODY_MODEL_PATH}/neutral/model.npz'
-NB_INPUT_JOINTS = 52 # default value used when initializing modules, unless specified otherwise
+# NB_INPUT_JOINTS = 52 # default value used when initializing modules, unless specified otherwise
+# 20250325 dzj
+NB_INPUT_JOINTS = 22 # default value used when initializing modules, unless specified otherwise
+# 20250325 dzj
 n_betas = 16
 
 SMPLX_BODY_MODEL_PATH = MAIN_DIR + '/data/smpl_models' # should contain "smplx/SMPLX_NEUTRAL.(npz|pkl)"
@@ -52,8 +65,11 @@ PID_NAN = -99999 # pose fake IDs, used for empty poses
 
 ### pose data ------------------------------------------------------------------
 
-AMASS_FILE_LOCATION = MAIN_DIR + f"/data/AMASS/{POSE_FORMAT}/"
-supported_datasets = {"AMASS":AMASS_FILE_LOCATION}
+# AMASS_FILE_LOCATION = MAIN_DIR + f"/data/AMASS/{POSE_FORMAT}/"
+# supported_datasets = {"AMASS":AMASS_FILE_LOCATION}
+# 20250325 dzj
+supported_datasets = {"AMASS":AMASS_FILE_LOCATION,"MOTIONX":AMASS_FILE_LOCATION}
+# 20250325 dzj
 
 BABEL_LOCATION = MAIN_DIR + "/data/BABEL/babel_v1.0_release"
 
@@ -76,7 +92,10 @@ vocab_files = {
 
 caption_files = {
     # <shortname for the dataset>: (<minimum number of texts per item>, <list of files providing the texts>)
-    "posescript-A2": (3, [f"{POSESCRIPT_LOCATION}/posescript_auto_100k.json"]),
+    # "posescript-A2": (3, [f"{POSESCRIPT_LOCATION}/posescript_auto_100k.json"]),
+    # 20250325 dzj
+    "posescript-A2": (3, [f"{POSESCRIPT_LOCATION}/new_text_annotation.json"]),
+    # 20250325 dzj
     "posescript-H2": (1, [f"{POSESCRIPT_LOCATION}/posescript_human_6293.json"]),
     "posefix-A": (3, [f"{POSEFIX_LOCATION}/posefix_auto_135305.json"]),
     "posefix-PP": (1, [f"{POSEFIX_LOCATION}/posefix_paraphrases_4284.json"]), # average is 2 texts/item (min 1, max 6)
@@ -86,9 +105,10 @@ caption_files = {
 }
 
 # data cache
+# 20250325  dzj
 dirpath_cache_dataset = MAIN_DIR + "/dataset_cache"
 cache_file_path = {
-    "posescript":'%s/PoseScript_version_{data_version}_split_{split}_tokenizer_{tokenizer}.pkl' % dirpath_cache_dataset,
+    "posescript":'%s/PoseScript_version_{data_version}_split_{split}_tokenizer_{tokenizer}_MotionXJoints.pkl' % dirpath_cache_dataset,
     "posefix":'%s/PoseFix_version_{data_version}_split_{split}_tokenizer_{tokenizer}.pkl' % dirpath_cache_dataset,
     "posemix":'%s/PoseMix_version_{data_version}_split_{split}_tokenizer_{tokenizer}.pkl' % dirpath_cache_dataset,
     "posestream":'%s/PoseStream_version_{data_version}_split_{split}_tokenizer_{tokenizer}.pkl' % dirpath_cache_dataset,
